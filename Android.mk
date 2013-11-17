@@ -32,7 +32,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src) \
 LOCAL_PROTOC_OPTIMIZE_TYPE := nano
 LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)/protos/
 
-LOCAL_SDK_VERSION := 19
+#LOCAL_SDK_VERSION := 19
 
 LOCAL_PACKAGE_NAME := JCLauncher
 #LOCAL_CERTIFICATE := shared
@@ -42,6 +42,7 @@ LOCAL_PRIVILEGED_MODULE := true
 LOCAL_OVERRIDES_PACKAGES := Launcher2
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
+LOCAL_PROGUARD_ENABLED := disabled
 
 include $(BUILD_PACKAGE)
 

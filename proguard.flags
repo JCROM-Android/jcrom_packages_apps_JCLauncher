@@ -49,3 +49,4 @@
 -keep class com.android.launcher3.MemoryDumpActivity {
   *;
 }
+
