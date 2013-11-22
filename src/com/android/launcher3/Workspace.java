@@ -45,6 +45,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.os.SystemProperties;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -2132,15 +2133,18 @@ public class Workspace extends SmoothPagedView
         }
         mLauncher.updateVoiceButtonProxyVisible(false);
 
+        String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+        int opacity = getResources().getInteger(R.integer.config_appsCustomizeSpringLoadedBgAlpha);
+        if(launcherDrawer.equals("true")) {
+            opacity = 0;
+        }
         if (stateIsSpringLoaded) {
             // Right now we're covered by Apps Customize
             // Show the background gradient immediately, so the gradient will
             // be showing once AppsCustomize disappears
-            animateBackgroundGradient(getResources().getInteger(
-                    R.integer.config_appsCustomizeSpringLoadedBgAlpha) / 100f, false);
+            animateBackgroundGradient(opacity / 100f, false);
         } else if (stateIsOverview) {
-            animateBackgroundGradient(getResources().getInteger(
-                    R.integer.config_appsCustomizeSpringLoadedBgAlpha) / 100f, true);
+            animateBackgroundGradient(opacity / 100f, true);
         } else {
             // Fade the background gradient away
             animateBackgroundGradient(0f, animated);

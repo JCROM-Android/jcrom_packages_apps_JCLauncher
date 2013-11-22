@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.os.SystemProperties;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -197,8 +198,12 @@ public class AppsCustomizeTabHost extends TabHost implements LauncherTransitiona
     }
 
     private void onTabChangedEnd(AppsCustomizePagedView.ContentType type) {
-        int bgAlpha = (int) (255 * (getResources().getInteger(
-            R.integer.config_appsCustomizeSpringLoadedBgAlpha) / 100f));
+        String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+        int opacity = getResources().getInteger(R.integer.config_appsCustomizeSpringLoadedBgAlpha);
+        if(launcherDrawer.equals("true")) {
+            opacity = 0;
+        }
+        int bgAlpha = (int) (255 * (opacity / 100f));
         setBackgroundColor(Color.argb(bgAlpha, 0, 0, 0));
         mAppsCustomizePane.setContentType(type);
     }
