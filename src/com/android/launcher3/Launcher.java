@@ -3327,20 +3327,30 @@ public class Launcher extends Activity
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         ComponentName activityName = searchManager.getGlobalSearchActivity();
         if (activityName != null) {
-            int coi = getCurrentOrientationIndexForGlobalIcons();
-            sGlobalSearchIcon[coi] = updateButtonWithIconFromExternalActivity(
-                    R.id.search_button, activityName, R.drawable.ic_home_search_normal_holo,
-                    TOOLBAR_SEARCH_ICON_METADATA_NAME);
-            if (sGlobalSearchIcon[coi] == null) {
+            String searchbarStr = SystemProperties.get("persist.sys.prop.searchbar");
+            if(searchbarStr.equals("true")){
+                if (searchButtonContainer != null) searchButtonContainer.setVisibility(View.GONE);
+                if (voiceButtonContainer != null) voiceButtonContainer.setVisibility(View.GONE);
+                if (searchButton != null) searchButton.setVisibility(View.GONE);
+                if (voiceButton != null) voiceButton.setVisibility(View.GONE);
+                updateVoiceButtonProxyVisible(false);
+                return false;
+            }else{
+                int coi = getCurrentOrientationIndexForGlobalIcons();
                 sGlobalSearchIcon[coi] = updateButtonWithIconFromExternalActivity(
                         R.id.search_button, activityName, R.drawable.ic_home_search_normal_holo,
-                        TOOLBAR_ICON_METADATA_NAME);
-            }
+                        TOOLBAR_SEARCH_ICON_METADATA_NAME);
+                if (sGlobalSearchIcon[coi] == null) {
+                    sGlobalSearchIcon[coi] = updateButtonWithIconFromExternalActivity(
+                            R.id.search_button, activityName, R.drawable.ic_home_search_normal_holo,
+                            TOOLBAR_ICON_METADATA_NAME);
+                }
 
-            if (searchButtonContainer != null) searchButtonContainer.setVisibility(View.VISIBLE);
-            searchButton.setVisibility(View.VISIBLE);
-            invalidatePressedFocusedStates(searchButtonContainer, searchButton);
-            return true;
+                if (searchButtonContainer != null) searchButtonContainer.setVisibility(View.VISIBLE);
+                searchButton.setVisibility(View.VISIBLE);
+                invalidatePressedFocusedStates(searchButtonContainer, searchButton);
+                return true;
+            }
         } else {
             // We disable both search and voice search when there is no global search provider
             if (searchButtonContainer != null) searchButtonContainer.setVisibility(View.GONE);
