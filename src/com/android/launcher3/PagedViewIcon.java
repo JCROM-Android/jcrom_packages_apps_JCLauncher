@@ -71,7 +71,8 @@ public class PagedViewIcon extends TextView {
         mPressedCallback = cb;
         setCompoundDrawables(null, Utilities.createIconDrawable(mIcon),
                 null, null);
-        setText(info.title);
+        CustomIconItem item = CustomIconSetting.getInstance().get(info.componentName);
+        setText((item == null || item.title) ? info.title : "");
         setTag(info);
     }
 
