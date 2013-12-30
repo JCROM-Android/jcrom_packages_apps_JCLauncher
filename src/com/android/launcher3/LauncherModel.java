@@ -39,6 +39,7 @@ import android.os.Parcelable;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.Pair;
@@ -1945,25 +1946,56 @@ public class LauncherModel extends BroadcastReceiver {
                     }
                     LauncherAppState.getLauncherProvider().updateMaxItemId(maxItemId);
                 } else {
-                    TreeMap<Integer, Long> orderedScreens = loadWorkspaceScreensDb(mContext);
-                    for (Integer i : orderedScreens.keySet()) {
-                        sBgWorkspaceScreens.add(orderedScreens.get(i));
-                    }
-
-                    // Remove any empty screens
-                    ArrayList<Long> unusedScreens = new ArrayList<Long>(sBgWorkspaceScreens);
-                    for (ItemInfo item: sBgItemsIdMap.values()) {
-                        long screenId = item.screenId;
-                        if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP &&
-                                unusedScreens.contains(screenId)) {
-                            unusedScreens.remove(screenId);
+                    String screenNumStr = SystemProperties.get("persist.sys.num.homescreen");
+                    if(screenNumStr == null || screenNumStr.length() == 0 || Integer.valueOf(screenNumStr) == 0) {
+                        TreeMap<Integer, Long> orderedScreens = loadWorkspaceScreensDb(mContext);
+                        for (Integer i : orderedScreens.keySet()) {
+                            sBgWorkspaceScreens.add(orderedScreens.get(i));
                         }
-                    }
 
-                    // If there are any empty screens remove them, and update.
-                    if (unusedScreens.size() != 0) {
-                        sBgWorkspaceScreens.removeAll(unusedScreens);
-                        updateWorkspaceScreenOrder(context, sBgWorkspaceScreens);
+                        // Remove any empty screens
+                        ArrayList<Long> unusedScreens = new ArrayList<Long>(sBgWorkspaceScreens);
+                        for (ItemInfo item: sBgItemsIdMap.values()) {
+                            long screenId = item.screenId;
+                            if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP &&
+                                    unusedScreens.contains(screenId)) {
+                                unusedScreens.remove(screenId);
+                            }
+                        }
+
+                        // If there are any empty screens remove them, and update.
+                        if (unusedScreens.size() != 0) {
+                            sBgWorkspaceScreens.removeAll(unusedScreens);
+                            updateWorkspaceScreenOrder(context, sBgWorkspaceScreens);
+                        }
+                    } else {
+                        int screenNum = Integer.valueOf(screenNumStr);
+                        int screenNumDb = 0;
+                        TreeMap<Integer, Long> orderedScreens = loadWorkspaceScreensDb(mContext);
+                        for (Integer i : orderedScreens.keySet()) {
+                            if(screenNumDb < screenNum){
+                                sBgWorkspaceScreens.add(orderedScreens.get(i));
+                                screenNumDb++;
+                            }
+                        }                    
+                        // Check requirements of new pages.
+                        if(screenNumDb < screenNum){
+                            // Add new screens.
+                            LauncherProvider lp = LauncherAppState.getLauncherProvider();
+                            int screenNumToAdd = screenNum - screenNumDb;
+                            
+                            while(screenNumToAdd > 0) {
+                                long screenId = lp.generateNewScreenId();
+                                sBgWorkspaceScreens.add(screenId);
+                                screenNumToAdd--;
+                            }
+                        } else if(screenNumDb == screenNum) {
+                            // Do nothing.
+                        } else {
+                            // Remove surplus screens from DB.
+                            // Checking requirement.
+                        }
+                    updateWorkspaceScreenOrder(context, sBgWorkspaceScreens);
                     }
                 }
 
