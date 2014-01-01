@@ -190,6 +190,8 @@ public class Launcher extends Activity
     private static final String TOOLBAR_VOICE_SEARCH_ICON_METADATA_NAME =
             "com.android.launcher.toolbar_voice_search_icon";
 
+    private static final String INTENT_START_SETTINGS = "com.android.settings.JAPANESE_CUSTOM_ROM_SETTINGS";
+
     public static final String SHOW_WEIGHT_WATCHER = "debug.show_mem";
     public static final boolean SHOW_WEIGHT_WATCHER_DEFAULT = false;
 
@@ -987,6 +989,8 @@ public class Launcher extends Activity
     }
 
     protected void startSettings() {
+        Intent intent = new Intent(INTENT_START_SETTINGS);
+        startActivity(intent);
     }
 
     public interface QSBScroller {

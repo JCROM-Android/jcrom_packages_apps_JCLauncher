@@ -374,14 +374,18 @@ public class Workspace extends SmoothPagedView
         // Prevent any Un/InstallShortcutReceivers from updating the db while we are dragging
         InstallShortcutReceiver.enableInstallQueue();
         UninstallShortcutReceiver.enableUninstallQueue();
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (mIsDragOccuring) {
-                    addExtraEmptyScreenOnDrag();
+
+        String screenNumStr = SystemProperties.get("persist.sys.num.homescreen");
+        if(screenNumStr == null || screenNumStr.length() == 0 || Integer.valueOf(screenNumStr) == 0) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mIsDragOccuring) {
+                        addExtraEmptyScreenOnDrag();
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void onDragEnd() {
@@ -723,49 +727,52 @@ public class Workspace extends SmoothPagedView
     }
 
     public void stripEmptyScreens() {
-        if (isPageMoving()) {
-            mStripScreensOnPageStopMoving = true;
-            return;
-        }
-
-        int currentPage = getNextPage();
-        ArrayList<Long> removeScreens = new ArrayList<Long>();
-        for (Long id: mWorkspaceScreens.keySet()) {
-            CellLayout cl = mWorkspaceScreens.get(id);
-            if (id >= 0 && cl.getShortcutsAndWidgets().getChildCount() == 0) {
-                removeScreens.add(id);
+        String screenNumStr = SystemProperties.get("persist.sys.num.homescreen");
+        if(screenNumStr == null || screenNumStr.length() == 0 || Integer.valueOf(screenNumStr) == 0) {
+            if (isPageMoving()) {
+                mStripScreensOnPageStopMoving = true;
+                return;
             }
-        }
 
-        // We enforce at least one page to add new items to. In the case that we remove the last
-        // such screen, we convert the last screen to the empty screen
-        int minScreens = 1 + numCustomPages();
-
-        int pageShift = 0;
-        for (Long id: removeScreens) {
-            CellLayout cl = mWorkspaceScreens.get(id);
-            mWorkspaceScreens.remove(id);
-            mScreenOrder.remove(id);
-
-            if (getChildCount() > minScreens) {
-                if (indexOfChild(cl) < currentPage) {
-                    pageShift++;
+            int currentPage = getNextPage();
+            ArrayList<Long> removeScreens = new ArrayList<Long>();
+            for (Long id: mWorkspaceScreens.keySet()) {
+                CellLayout cl = mWorkspaceScreens.get(id);
+                if (id >= 0 && cl.getShortcutsAndWidgets().getChildCount() == 0) {
+                    removeScreens.add(id);
                 }
-                removeView(cl);
-            } else {
-                // if this is the last non-custom content screen, convert it to the empty screen
-                mWorkspaceScreens.put(EXTRA_EMPTY_SCREEN_ID, cl);
-                mScreenOrder.add(EXTRA_EMPTY_SCREEN_ID);
             }
-        }
 
-        if (!removeScreens.isEmpty()) {
-            // Update the model if we have changed any screens
-            mLauncher.getModel().updateWorkspaceScreenOrder(mLauncher, mScreenOrder);
-        }
+            // We enforce at least one page to add new items to. In the case that we remove the last
+            // such screen, we convert the last screen to the empty screen
+            int minScreens = 1 + numCustomPages();
 
-        if (pageShift >= 0) {
-            setCurrentPage(currentPage - pageShift);
+            int pageShift = 0;
+            for (Long id: removeScreens) {
+                CellLayout cl = mWorkspaceScreens.get(id);
+                mWorkspaceScreens.remove(id);
+                mScreenOrder.remove(id);
+
+                if (getChildCount() > minScreens) {
+                    if (indexOfChild(cl) < currentPage) {
+                        pageShift++;
+                    }
+                    removeView(cl);
+                } else {
+                    // if this is the last non-custom content screen, convert it to the empty screen
+                    mWorkspaceScreens.put(EXTRA_EMPTY_SCREEN_ID, cl);
+                    mScreenOrder.add(EXTRA_EMPTY_SCREEN_ID);
+                }
+            }
+
+            if (!removeScreens.isEmpty()) {
+                // Update the model if we have changed any screens
+                mLauncher.getModel().updateWorkspaceScreenOrder(mLauncher, mScreenOrder);
+            }
+
+            if (pageShift >= 0) {
+                setCurrentPage(currentPage - pageShift);
+            }
         }
     }
 
