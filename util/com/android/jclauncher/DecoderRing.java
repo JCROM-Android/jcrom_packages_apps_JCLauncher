@@ -47,23 +47,23 @@ import javax.xml.bind.DatatypeConverter;
  * <P>When using com.android.internal.backup.LocalTransport, the file names are base64-encoded Key
  * protocol buffers with a prefix, that have been base64-encoded again by the transport:
  * <pre>
- *     echo "TDpDQUlnL0pxVTVnOD0=" | launcher_protoutil -k
+ *     echo "TDpDQUlnL0pxVTVnOD0=" | jclauncher_protoutil -k
  * </pre>
  *
  * <P>This tool understands these file names and will use the embedded Key to detect the type and
  * extract the payload automatically:
  * <pre>
- *     launcher_protoutil /tmp/TDpDQUlnL0pxVTVnOD0=
+ *     jclauncher_protoutil /tmp/TDpDQUlnL0pxVTVnOD0=
  * </pre>
  *
  * <P>With payload debugging enabled, base64-encoded protocol buffers will be written to the logs.
  * Copy the encoded snippet from the log, and specify the type explicitly, with the Logs flags:
  * <pre>
- *    echo "CAEYLiCJ9JKsDw==" | launcher_protoutil -L -k
+ *    echo "CAEYLiCJ9JKsDw==" | jclauncher_protoutil -L -k
  * </pre>
  * For backup payloads it is more convenient to copy the log snippet to a file:
  * <pre>
- *    launcher_protoutil -L -f favorite.log
+ *    jclauncher_protoutil -L -f favorite.log
  * </pre>
  */
 class DecoderRing {
@@ -325,7 +325,7 @@ class DecoderRing {
     }
 
     private static void usage(String[] args) {
-        System.err.println("launcher_protoutil [-x] [-S b] [-k|-f|-i|-s|-w] [filename]");
+        System.err.println("jclauncher_protoutil [-x] [-S b] [-k|-f|-i|-s|-w] [filename]");
         System.err.println("\t-k\tdecode a key");
         System.err.println("\t-f\tdecode a favorite");
         System.err.println("\t-i\tdecode a icon");
