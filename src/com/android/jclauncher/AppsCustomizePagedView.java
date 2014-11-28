@@ -55,6 +55,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import java.io.File;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.view.WindowManager;
+import android.view.Display;
+import android.view.Surface;
+import android.os.Environment;
+import android.os.SystemProperties;
+import android.widget.ImageView.ScaleType;
+import android.widget.FrameLayout;
+
 /**
  * A simple callback interface which also provides the results of the task.
  */
@@ -210,6 +221,8 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     private boolean mInBulkBind;
     private boolean mNeedToUpdatePageCountsAndInvalidateData;
+
+    private boolean mEnableTheme = false;
 
     public AppsCustomizePagedView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -924,10 +937,36 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         int heightSpec = MeasureSpec.makeMeasureSpec(mContentHeight, MeasureSpec.AT_MOST);
         layout.measure(widthSpec, heightSpec);
 
-        Drawable bg = getContext().getResources().getDrawable(R.drawable.quantum_panel);
-        if (bg != null) {
-            bg.setAlpha(mPageBackgroundsVisible ? 255: 0);
-            layout.setBackground(bg);
+        String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+        String forceHobby = SystemProperties.get("persist.sys.force.hobby");
+        Drawable drawable = null;
+        
+
+        if (forceHobby.equals("true")) {
+            if (requiresRotation()) {
+                drawable = getDrawableFromFile("launcher", "launcher_wallpaper_land");
+                if (drawable == null) {
+                    drawable = getDrawableFromFile("launcher", "launcher_wallpaper");
+                }
+            }else {
+                drawable = getDrawableFromFile("launcher", "launcher_wallpaper");
+            }
+        }
+
+        if (drawable == null) {
+            drawable = getContext().getResources().getDrawable(R.drawable.quantum_panel);
+            mEnableTheme = false;
+        }else {
+            mEnableTheme = true;
+        }
+
+        if (drawable != null) {
+            int opacity = mPageBackgroundsVisible ? 255: 0; 
+            if ((launcherDrawer.equals("true")) && !mEnableTheme) {
+                opacity = 0;
+            }
+            drawable.setAlpha(opacity);
+            layout.setBackground(drawable);
         }
 
         setVisibilityOnChildren(layout, View.VISIBLE);
@@ -936,10 +975,21 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     public void setPageBackgroundsVisible(boolean visible) {
         mPageBackgroundsVisible = visible;
         int childCount = getChildCount();
+
+        String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+        boolean transparentDrawer = false;
+        if(launcherDrawer.equals("true")) {
+            transparentDrawer = true;
+        }
+
         for (int i = 0; i < childCount; ++i) {
             Drawable bg = getChildAt(i).getBackground();
             if (bg != null) {
-                bg.setAlpha(visible ? 255 : 0);
+                int opacity = visible ? 255 : 0;
+                if (transparentDrawer && !mEnableTheme) {
+                    opacity = 0;
+                }
+                bg.setAlpha(opacity);
             }
         }
     }
@@ -1561,4 +1611,40 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
         return String.format(getContext().getString(stringId), page + 1, count);
     }
+
+    private String checkThemeFile(String filename) {
+        String extension = ".png";
+        File file = null;
+
+        file = new File(filename + ".png");
+        if(file.exists()) {
+            extension = ".png";
+        }else {
+            file = new File(filename + ".jpg");
+            if(file.exists()) {
+                extension = ".jpg";
+            }
+        }
+
+        return extension;
+    }
+
+    public boolean requiresRotation() {
+        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        Display dp = wm.getDefaultDisplay();
+        return dp.getRotation()==Surface.ROTATION_90 || dp.getRotation()==Surface.ROTATION_270;
+    }
+
+    public Drawable getDrawableFromFile(String DIR, String MY_FILE_NAME) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(Environment.getDataDirectory().toString() + "/theme/"+DIR+"/");
+        builder.append(File.separator);
+        builder.append(MY_FILE_NAME);
+        String filePath = builder.toString();
+        String extension = checkThemeFile(filePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath + extension);
+        Drawable d = new BitmapDrawable(mContext.getResources(), bitmap);
+        return d;
+    }
+
 }

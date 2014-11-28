@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import android.graphics.drawable.Drawable;
+import android.os.SystemProperties;
 
 class DeviceProfileQuery {
     DeviceProfile profile;
@@ -856,7 +858,12 @@ public class DeviceProfile {
                 padding.bottom = Math.max(0, pageIndicatorHeight - paddingTB);
 
                 pagedView.setWidgetsPageIndicatorPadding(pageIndicatorHeight);
-                fakePage.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                Drawable drawable = res.getDrawable(R.drawable.quantum_panel);
+                String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+                if (launcherDrawer.equals("true")) {
+                    drawable.setAlpha(0);
+                }
+                fakePage.setBackground(drawable);                
 
                 // Horizontal padding for the whole paged view
                 int pagedFixedViewPadding =

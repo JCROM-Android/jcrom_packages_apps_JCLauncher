@@ -23,9 +23,11 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.support.v4.widget.AutoScrollHelper;
 import android.text.InputType;
 import android.text.Selection;
@@ -434,7 +436,14 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
      * @return A new UserFolder.
      */
     static Folder fromXml(Context context) {
-        return (Folder) LayoutInflater.from(context).inflate(R.layout.user_folder, null);
+        Folder folder = (Folder) LayoutInflater.from(context).inflate(R.layout.user_folder, null);
+        String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+        if(launcherDrawer.equals("true")) {
+            Drawable drawable = context.getResources().getDrawable(R.drawable.quantum_panel);
+            drawable.setAlpha(0);
+            folder.setBackground(drawable);
+        }
+        return folder;
     }
 
     /**

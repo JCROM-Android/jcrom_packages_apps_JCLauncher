@@ -66,6 +66,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.speech.RecognizerIntent;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
@@ -3253,11 +3254,17 @@ public class Launcher extends Activity
             final float initialPanelAlpha = 1f;
 
             final boolean isWidgetTray = contentType == AppsCustomizePagedView.ContentType.Widgets;
+            Drawable drawable = null;
             if (isWidgetTray) {
-                revealView.setBackground(res.getDrawable(R.drawable.quantum_panel_dark));
+                drawable = res.getDrawable(R.drawable.quantum_panel_dark);
             } else {
-                revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                drawable = res.getDrawable(R.drawable.quantum_panel);
             }
+            String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+            if (launcherDrawer.equals("true")) {
+                drawable.setAlpha(0);
+            }
+            revealView.setBackground(drawable);
 
             // Hide the real page background, and swap in the fake one
             content.setPageBackgroundsVisible(false);
@@ -3507,11 +3514,17 @@ public class Launcher extends Activity
                 final boolean isWidgetTray =
                         contentType == AppsCustomizePagedView.ContentType.Widgets;
 
+                Drawable drawable = null;
                 if (isWidgetTray) {
-                    revealView.setBackground(res.getDrawable(R.drawable.quantum_panel_dark));
+                    drawable = res.getDrawable(R.drawable.quantum_panel_dark);
                 } else {
-                    revealView.setBackground(res.getDrawable(R.drawable.quantum_panel));
+                    drawable = res.getDrawable(R.drawable.quantum_panel);
                 }
+                String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+                if (launcherDrawer.equals("true")) {
+                    drawable.setAlpha(0);
+                }
+                revealView.setBackground(drawable);
 
                 int width = revealView.getMeasuredWidth();
                 int height = revealView.getMeasuredHeight();

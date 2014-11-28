@@ -51,6 +51,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.os.SystemProperties;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -2411,11 +2412,16 @@ public class Workspace extends SmoothPagedView
         }
         mLauncher.updateVoiceButtonProxyVisible(false);
 
+        String launcherDrawer = SystemProperties.get("persist.sys.launcher.drawer");
+        int opacity = getResources().getInteger(R.integer.config_workspaceScrimAlpha);
+        if(launcherDrawer.equals("true")) {
+            opacity = 0;
+        }
+
         if (stateIsNormal) {
             animateBackgroundGradient(0f, animated);
         } else {
-            animateBackgroundGradient(getResources().getInteger(
-                    R.integer.config_workspaceScrimAlpha) / 100f, animated);
+            animateBackgroundGradient(opacity / 100f, animated);
         }
         return anim;
     }
