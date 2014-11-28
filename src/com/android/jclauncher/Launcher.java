@@ -173,6 +173,7 @@ public class Launcher extends Activity
     // To turn on these properties, type
     // adb shell setprop log.tag.PROPERTY_NAME [VERBOSE | SUPPRESS]
     static final String FORCE_ENABLE_ROTATION_PROPERTY = "launcher_force_rotate";
+    static final String LAUNCHER_LANDSCAPE_PROPERTY = "persist.sys.launcher.landscape";
     static final String DUMP_STATE_PROPERTY = "launcher_dump_state";
     static final String DISABLE_ALL_APPS_PROPERTY = "launcher_noallapps";
 
@@ -371,7 +372,8 @@ public class Launcher extends Activity
 
     private static PendingAddArguments sPendingAddItem;
 
-    public static boolean sForceEnableRotation = isPropertyEnabled(FORCE_ENABLE_ROTATION_PROPERTY);
+    //public static boolean sForceEnableRotation = isPropertyEnabled(FORCE_ENABLE_ROTATION_PROPERTY);
+    public static boolean sForceEnableRotation = SystemProperties.getBoolean(LAUNCHER_LANDSCAPE_PROPERTY, false);
 
     private static class PendingAddArguments {
         int requestCode;
