@@ -1390,7 +1390,15 @@ public class Workspace extends SmoothPagedView
             }
 
             int firstPageScrollX = getScrollForPage(firstIndex);
-            int scrollRange = getScrollForPage(lastIndex) - firstPageScrollX;
+            int scrollRange;
+            String scrollRangeStr = SystemProperties.get("persist.sys.fixed.wallpaper");
+
+            if (scrollRangeStr.equals("true")){
+                scrollRange = 0;
+            } else {
+                scrollRange = getScrollForPage(lastIndex) - firstPageScrollX;
+            }
+
             if (scrollRange == 0) {
                 return 0;
             } else {
