@@ -460,7 +460,13 @@ public class Launcher extends Activity
         }
 
         checkForLocaleChange();
-        setContentView(R.layout.launcher);
+
+        String gradientStr = SystemProperties.get("persist.sys.prop.gradient");
+        if (gradientStr.equals("true")) {
+            setContentView(R.layout.launcher_nograd);
+        } else {
+            setContentView(R.layout.launcher);
+        }
 
         setupViews();
         grid.layout(this);
@@ -1290,7 +1296,11 @@ public class Launcher extends Activity
 
         mLauncherView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        mWorkspaceBackgroundDrawable = getResources().getDrawable(R.drawable.workspace_bg);
+
+        String gradientStr = SystemProperties.get("persist.sys.prop.gradient");
+        if(!gradientStr.equals("true")){
+            mWorkspaceBackgroundDrawable = getResources().getDrawable(R.drawable.workspace_bg);
+        }
 
         // Setup the drag layer
         mDragLayer.setup(this, dragController);
