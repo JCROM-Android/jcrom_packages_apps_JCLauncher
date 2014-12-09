@@ -962,7 +962,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
         if (drawable != null) {
             int opacity = mPageBackgroundsVisible ? 255: 0; 
-            if ((launcherDrawer.equals("true")) && !mEnableTheme) {
+            if (launcherDrawer.equals("true") && !mEnableTheme) {
                 opacity = 0;
             }
             drawable.setAlpha(opacity);
@@ -1642,9 +1642,14 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         builder.append(MY_FILE_NAME);
         String filePath = builder.toString();
         String extension = checkThemeFile(filePath);
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath + extension);
-        Drawable d = new BitmapDrawable(mContext.getResources(), bitmap);
-        return d;
+        File file = new File(filePath + extension);
+        Bitmap bitmap = null;
+        Drawable drawable = null;
+        if(file.exists()) {
+            bitmap = BitmapFactory.decodeFile(filePath + extension);
+            drawable = new BitmapDrawable(mContext.getResources(), bitmap);
+        }
+        return drawable;
     }
 
 }
